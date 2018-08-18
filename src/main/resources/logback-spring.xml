@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
+    <property name="LOG_PATH" value="${user.dir}"/>
+    <!--<property name="LOG_PATH" value="/home/admin" />-->
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                <![CDATA[[%d{yyyy-MM-dd HH:mm:ss}] %-5level %logger - %msg%n]]></pattern>
+        </encoder>
+    </appender>
+
+    <!-- 按照每天生成日志文件 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>logs/contract-chain.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>logs/%d{yyyy-MM-dd}/contract-chain-%i.log</FileNamePattern>
+            <MaxHistory>30</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>
+                <![CDATA[[%d{yyyy-MM-dd HH:mm:ss}] %-5level %logger - %msg%n]]></pattern>
+        </layout>
+    </appender>
+
+    <!-- 按照每天生成日志文件 -->
+    <appender name="PROJECT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--<Encoding>GBK</Encoding>-->
+        <File>logs/contract-chain-biz.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>logs/%d{yyyy-MM-dd}/contract-chain-biz-%i.log</FileNamePattern>
+            <MaxHistory>30</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>
+                <![CDATA[[%d{yyyy-MM-dd HH:mm:ss}] %-5level %logger - %msg%n]]></pattern>
+        </layout>
+    </appender>
+
+    <!-- 用来设置某一个包或者具体的某一个类的日志打印级别，包名要与实际项目一致 ,只打印com.fuzamei下面的日志-->
+    <logger name="com.fuzamei" level="INFO">
+        <appender-ref ref="PROJECT"/>
+    </logger>
+    <!--    <logger name="org.springframework" level="info" additivity="false">
+            <appender-ref ref="PROJECT"/>
+        </logger>-->
+
+    <!--root表示所有日志都打印-->
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
+

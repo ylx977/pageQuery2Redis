@@ -1,0 +1,39 @@
+server:
+  port: 8000
+  servlet:
+    context-path: /pageQuery
+  tomcat:
+    uri-encoding: UTF-8
+spring:
+  http:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+      force-response: true
+  datasource:
+    hikari:
+      connection-test-query: select 'x'
+      read-only: false
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 20
+      minimum-idle: 20
+#    url: jdbc:mysql://172.16.100.15:3306/contractchain?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&allowMultiQueries=true&useSSL=false
+    url: jdbc:mysql://127.0.0.1:3306/user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&allowMultiQueries=true&useSSL=false
+    username: root
+    password: root
+#    password: agffxyCtt5*p
+    driver-class-name: com.mysql.jdbc.Driver
+
+#Mybatis
+mybatis:
+  mapper-locations: classpath:/xmls/*.xml
+  configuration:
+    call-setters-on-nulls: true
+    cache-enabled: false
+    use-generated-keys: true
+    use-column-label: true
+    map-underscore-to-camel-case: true
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
