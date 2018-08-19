@@ -20,11 +20,11 @@ spring:
       max-lifetime: 1800000
       maximum-pool-size: 20
       minimum-idle: 20
-#    url: jdbc:mysql://172.16.100.15:3306/contractchain?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&allowMultiQueries=true&useSSL=false
-    url: jdbc:mysql://127.0.0.1:3306/user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&allowMultiQueries=true&useSSL=false
+    url: jdbc:mysql://118.178.58.178:3306/user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&allowMultiQueries=true&useSSL=false
+#    url: jdbc:mysql://127.0.0.1:3306/user?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&allowMultiQueries=true&useSSL=false
     username: root
-    password: root
-#    password: agffxyCtt5*p
+#    password: root
+    password: sql345678
     driver-class-name: com.mysql.jdbc.Driver
 
 #Mybatis

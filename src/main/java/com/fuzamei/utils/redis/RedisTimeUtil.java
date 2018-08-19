@@ -6,6 +6,7 @@ package com.fuzamei.utils.redis;
 public class RedisTimeUtil {
 
     public static long ONE_MINUTE = 1000L * 60;
+    public static long TEN_MINUTES = 1000L * 600;
     public static long ONE_HOUR = 1000L * 60 * 60;
     public static long TWO_HOUR = 1000L * 60 * 60;
     public static long ONE_DAY = 1000L * 3600 * 24;

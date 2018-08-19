@@ -87,7 +87,7 @@ public class PageQueryCacheServiceImpl implements PageQueryService{
                     }
                     jedis.sadd(usernameKey,values);
                     //设置10分钟的过期时间
-                    jedis.pexpire(usernameKey,600000L);
+                    jedis.pexpire(usernameKey,RedisTimeUtil.TEN_MINUTES);
                 }
                 usernameFlag = true;
             }
@@ -102,7 +102,7 @@ public class PageQueryCacheServiceImpl implements PageQueryService{
                     }
                     jedis.sadd(addressKey,values);
                     //设置10分钟的过期时间
-                    jedis.pexpire(addressKey,600000L);
+                    jedis.pexpire(addressKey,RedisTimeUtil.TEN_MINUTES);
                 }
                 addressFlag = true;
             }
@@ -117,7 +117,7 @@ public class PageQueryCacheServiceImpl implements PageQueryService{
                     }
                     jedis.sadd(priceKey,set.toArray(new String[set.size()]));
                     //设置10分钟的过期时间
-                    jedis.pexpire(priceKey,600000L);
+                    jedis.pexpire(priceKey,RedisTimeUtil.TEN_MINUTES);
                 }
                 priceFlag = true;
             }
@@ -130,11 +130,11 @@ public class PageQueryCacheServiceImpl implements PageQueryService{
                     if(set.size() == 0){
                         return PageDTO.getPagination(0, Collections.emptyList());
                     }
-                    final Map<String,Double> map = new HashMap<>();
+                    final Map<String,Double> map = new HashMap<>(set.size());
                     set.stream().forEach(x->map.put(x.getElement(),x.getScore()));
                     jedis.zadd(timeKey,map);
                     //设置10分钟的过期时间
-                    jedis.pexpire(timeKey,600000L);
+                    jedis.pexpire(timeKey,RedisTimeUtil.TEN_MINUTES);
                 }
                 timeFlag = true;
             }
@@ -178,7 +178,7 @@ public class PageQueryCacheServiceImpl implements PageQueryService{
             }
             zParams.weightsByDouble(doubles);
             jedis.zinterstore(complexKey,zParams,sets.toArray(new String[sets.size()]));
-            jedis.pexpire(complexKey,600000L);
+            jedis.pexpire(complexKey,RedisTimeUtil.TEN_MINUTES);
             return getPage(jedis,startPage,rowNum,queryBO,startTime,endTime,complexKey);
         }finally {
             jedis.close();
@@ -212,8 +212,9 @@ public class PageQueryCacheServiceImpl implements PageQueryService{
             }
         }
         final StringBuilder sb = new StringBuilder();
+        sb.append('[');
         mget.stream().forEach(x->sb.append(x).append(','));
-        sb.deleteCharAt(sb.length()-1).insert(0,'[').append(']');
+        sb.replace(sb.length()-1,sb.length(),"]");
         List<UserDO> rows = JSON.parseArray(sb.toString(), UserDO.class);
         log.info("直接返回缓存的数据");
         return PageDTO.getPagination((int)total,rows);
@@ -280,10 +281,22 @@ public class PageQueryCacheServiceImpl implements PageQueryService{
 
     @Override
     public void update(QueryBO queryBO) {
-        UserDO userDO = pageQueryMapper.findDataById(queryBO);
+        Long id = queryBO.getId();
+
+        String stringUserDO = redisUtil.get(RedisKeyUtils.userQueryData(id));
+        UserDO userDO;
+        if(StringUtils.isEmpty(stringUserDO)){
+            userDO = pageQueryMapper.findDataById(queryBO);
+        }else{
+            userDO = JSON.parseObject(stringUserDO,UserDO.class);
+        }
+        if(null == userDO){
+            throw new RuntimeException("id号不存在");
+        }
+
+        //todo 真正对数据库进行修改
         pageQueryService.update(queryBO);
 
-        Long id = queryBO.getId();
 
         final Jedis jedis = jedisPool.getResource();
         //使用redis的管道技术 todo ☆
