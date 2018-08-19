@@ -2,6 +2,81 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fuzamei.mapper.PageQueryMapper">
 
+    <insert id="insert" parameterType="com.fuzamei.model.QueryBO" keyProperty="id" useGeneratedKeys="true">
+        insert into user_query(username, password, address, ctime, utime, price) values(#{username},#{password},#{address},#{ctime},#{utime},#{price})
+    </insert>
 
+    <update id="update" parameterType="com.fuzamei.model.QueryBO">
+        update user_query set
+        <trim suffixOverrides=",">
+            <if test="username!=null and username!=''">
+                username = #{username},
+            </if>
+            <if test="address!=null and address!=''">
+                address = #{address},
+            </if>
+            <if test="price!=null">
+                price = #{price},
+            </if>
+            <if test="password!=null and password!=''">
+                password = #{password},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="com.fuzamei.model.QueryBO">
+        delete from user_query where id in
+        <foreach collection="ids" separator="," item="item" index="index" open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="query" parameterType="com.fuzamei.model.QueryBO" resultType="com.fuzamei.model.UserDO">
+        select * from user_query
+        <where>
+          <if test="username!=null and username!=''">
+              username like "%"#{username}"%"
+          </if>
+          <if test="address!=null and address!=''">
+              and address like "%"#{address}"%"
+          </if>
+          <if test="startTime!=null and endTime!=null">
+              and utime between #{startTime} and #{endTime}
+          </if>
+          <if test="startPrice!=null and endPrice!=null">
+              and price between #{startPrice} and #{endPrice}
+          </if>
+        </where>
+        order by
+          utime
+        limit
+          #{startPage},#{rowNum}
+    </select>
+
+    <select id="queryCount" parameterType="com.fuzamei.model.QueryBO" resultType="int">
+        select count(*) from user_query
+        <where>
+            <if test="username!=null and username!=''">
+                username like "%"#{username}"%"
+            </if>
+            <if test="address!=null and address!=''">
+                and address like "%"#{address}"%"
+            </if>
+            <if test="startTime!=null and endTime!=null">
+                and utime between #{startTime} and #{endTime}
+            </if>
+            <if test="startPrice!=null and endPrice!=null">
+                and price between #{startPrice} and #{endPrice}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryDelete" resultType="com.fuzamei.model.UserDO" parameterType="com.fuzamei.model.QueryBO">
+        select * from user_query where id in
+        <foreach collection="ids" open="(" close=")" index="index" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
 
 </mapper>

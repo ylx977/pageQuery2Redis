@@ -9,12 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import static com.fuzamei.controller.BaseController.*;
 
 /**
  * @author ylx
+ * 专门做了一个分页的查询系统，数据库和redis同步的一个查询功能，redis实现mysql的分页功能
+ * 其中username唯一
+ * address不一定唯一
+ * Price也不一定唯一 可选择正序或反系排列
+ * time也不一定唯一   可选择正序或反序排列
  * Created by fuzamei on 2018/8/17.
  */
 @Slf4j
@@ -23,7 +27,7 @@ import static com.fuzamei.controller.BaseController.*;
 public class PageQueryController {
 
     @Autowired
-    @Qualifier("noRedis")
+    @Qualifier("useRedis")
     private PageQueryService pageQueryService;
 
 
@@ -32,8 +36,11 @@ public class PageQueryController {
         "page":"",
         "rowNum":"",
         "address":"",
-        "time":"",
-        "price":""
+        "username":"",
+        "startPrice":"",
+        "endPrice":"",
+        "startTime":"",
+        "endTime":""
      }
      * @return
      */
@@ -43,12 +50,14 @@ public class PageQueryController {
         try {
             queryBO.verifyQuery();
         }catch (Exception e){
+            e.printStackTrace();
             return valiError(e);
         }
         try {
             PageDTO pageDTO = pageQueryService.query(queryBO);
             return success(pageDTO);
         }catch (Exception e){
+            e.printStackTrace();
             return sysError(e);
         }
     }
@@ -68,18 +77,21 @@ public class PageQueryController {
         try {
             queryBO.verifyInsert();
         }catch (Exception e){
+            e.printStackTrace();
             return valiError(e);
         }
         try {
             pageQueryService.insert(queryBO);
             return success();
         }catch (Exception e){
+            e.printStackTrace();
             return sysError(e);
         }
     }
 
     /**
      {
+        "id":"",
         "username":"",
         "password":"",
         "address":"",
@@ -93,12 +105,14 @@ public class PageQueryController {
         try {
             queryBO.verifyUpdate();
         }catch (Exception e){
+            e.printStackTrace();
             return valiError(e);
         }
         try {
             pageQueryService.update(queryBO);
             return success();
         }catch (Exception e){
+            e.printStackTrace();
             return sysError(e);
         }
     }
@@ -115,12 +129,14 @@ public class PageQueryController {
         try {
             queryBO.verifyDelete();
         }catch (Exception e){
+            e.printStackTrace();
             return valiError(e);
         }
         try {
             pageQueryService.delete(queryBO);
             return success();
         }catch (Exception e){
+            e.printStackTrace();
             return sysError(e);
         }
     }

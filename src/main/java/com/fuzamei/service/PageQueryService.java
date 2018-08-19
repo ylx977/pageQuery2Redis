@@ -21,7 +21,15 @@ public interface PageQueryService {
      */
     void insert(QueryBO queryBO);
 
+    /**
+     * 根据id删除，支持批量删除
+     * @param queryBO
+     */
     void delete(QueryBO queryBO);
 
+    /**
+     * 根据id更新username address price
+     * @param queryBO
+     */
     void update(QueryBO queryBO);
 }

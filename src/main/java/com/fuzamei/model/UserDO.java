@@ -1,5 +1,6 @@
 package com.fuzamei.model;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  * Created by fuzamei on 2018/8/17.
  */
 @Data
+@Builder
 public class UserDO {
 
     private Long id;

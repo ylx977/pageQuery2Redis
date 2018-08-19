@@ -3,14 +3,9 @@ package com.fuzamei.utils.redis;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.Tuple;
+import redis.clients.jedis.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -260,6 +255,22 @@ public class RedisUtil {
         }
     }
 
+    public boolean sadd(String key,String... values){
+        Jedis jedis = jedisPool.getResource();
+        try {
+            Long sadd = jedis.sadd(key, values);
+            if(sadd == 0){
+                return false;
+            }
+            return true;
+        }catch (Exception e){
+            return false;
+        }finally {
+            closeGracefully(jedis);
+        }
+    }
+
+
     public Long zadd(String key,double score,String member){
         Jedis jedis = jedisPool.getResource();
         try {
@@ -284,6 +295,21 @@ public class RedisUtil {
         }
     }
 
+    public boolean zrem(String key,String... members){
+        Jedis jedis = jedisPool.getResource();
+        try {
+            Long zrem = jedis.zrem(key, members);
+            if(zrem != 0){
+                return true;
+            }
+            return false;
+        }catch (Exception e){
+            return false;
+        }finally {
+            closeGracefully(jedis);
+        }
+    }
+
     public Set<String> zrangeByScore(String key, double min, double max){
         Jedis jedis = jedisPool.getResource();
         try {
@@ -296,10 +322,10 @@ public class RedisUtil {
         }
     }
 
-    public Set<String> zrevrangeByScore(String key, double min, double max){
+    public Set<String> zrevrangeByScore(String key, double max, double min){
         Jedis jedis = jedisPool.getResource();
         try {
-            return jedis.zrevrangeByScore(key,min,max);
+            return jedis.zrevrangeByScore(key,max,min);
         }catch (Exception e){
             log.error("redis获取zrevrangeByScore异常");
             return Collections.emptySet();
@@ -393,6 +419,32 @@ public class RedisUtil {
         }
     }
 
+    public boolean zinterStore(String sdtKey,String...sets){
+        Jedis jedis = jedisPool.getResource();
+        try {
+            Long zinterstore = jedis.zinterstore(sdtKey, sets);
+            return zinterstore.equals(0L);
+        }catch (Exception e){
+            log.error("redis获取zinterStore异常");
+            return false;
+        }finally {
+            closeGracefully(jedis);
+        }
+    }
+
+    public boolean zinterStore(String sdtKey,ZParams zParams,String...sets){
+        Jedis jedis = jedisPool.getResource();
+        try {
+            Long zinterstore = jedis.zinterstore(sdtKey,zParams, sets);
+            return zinterstore.equals(0L);
+        }catch (Exception e){
+            log.error("redis获取zinterStore异常");
+            return false;
+        }finally {
+            closeGracefully(jedis);
+        }
+    }
+
     /**
      * set一个key,如果key存在redis会返回0，如果key不存在，返回1
      * @param key
@@ -479,6 +531,32 @@ public class RedisUtil {
         }catch (Exception e){
             log.error("redis在hdel异常");
             return false;
+        }finally {
+            closeGracefully(jedis);
+        }
+    }
+
+    public String[] hscan(String key,String pattern){
+        Jedis jedis = jedisPool.getResource();
+        try {
+            ScanParams scanParams = new ScanParams();
+            scanParams.match(pattern);
+            Set<String> set = new HashSet<>();
+            while(true){
+                ScanResult<Map.Entry<String, String>> hscan = jedis.hscan(key, "0", scanParams);
+                List<Map.Entry<String, String>> result = hscan.getResult();
+                result.stream().forEach(x->set.add(x.getValue()));
+                String stringCursor = hscan.getStringCursor();
+                if("0".equals(stringCursor)){
+                    break;
+                }
+            }
+            if(set.size()==0){
+                return new String[0];
+            }
+            return set.toArray(new String[set.size()]);
+        }catch (Exception e){
+            return new String[0];
         }finally {
             closeGracefully(jedis);
         }
